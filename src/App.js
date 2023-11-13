@@ -21,10 +21,15 @@ function App() {
   }
 
   function handleComplete(taskId) {
-    // const updatedTasks = tasks.map((task) =>
-    //   task.id === taskId ? { ...task, status: "yapıldı" } : task
-    // );
-    // setTasks(updatedTasks);
+    const updatedTask = tasks.map((item) => {
+      if (taskId === item.id) {
+        return { ...item, status: "yapıldı" };
+      } else {
+        return item;
+      }
+    });
+
+    setTasks(updatedTask);
   }
 
   return (

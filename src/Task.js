@@ -4,7 +4,7 @@ const Task = ({ taskObj, onComplete }) => {
   const [tamam, setTamam] = useState("Tamamlandı");
 
   function handleCompleteClick() {
-    // onComplete(taskObj.id);
+    onComplete(taskObj.id);
     setTamam("Yapıldı");
   }
 
