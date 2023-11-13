@@ -16,13 +16,15 @@ function App() {
     console.log("App teki task", tasks);
   }
 
-  useEffect(() => {}, []);
   function handlePeopleSubmit(yeniKisi) {
     setTeam([...team, yeniKisi]);
   }
 
-  function handleComplete(id) {
-    console.log("tamamlama fonksiyonunu buraya yazın");
+  function handleComplete(taskId) {
+    // const updatedTasks = tasks.map((task) =>
+    //   task.id === taskId ? { ...task, status: "yapıldı" } : task
+    // );
+    // setTasks(updatedTasks);
   }
 
   return (
