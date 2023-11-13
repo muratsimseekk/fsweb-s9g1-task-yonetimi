@@ -1,28 +1,104 @@
 import React, { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { nanoid } from "nanoid";
+import * as Yup from "yup";
+
+const formSemasi = Yup.object().shape({
+  title: Yup.string()
+    .required("Task başlığı yazmalısınız")
+    .min(3, "Task başlığı en az 3 karakter olmalı"),
+  description: Yup.string()
+    .required("Task açıklaması yazmalısınız")
+    .min(10, "Task açıklaması en az 10 karakter olmalı"),
+  people: Yup.array()
+    .max(3, "En fazla 3 kişi seçebilirsiniz")
+    .min(1, "Lütfen en az bir kişi seçin"),
+});
 
 const TaskForm = ({ kisiler, submitFn }) => {
-  const formData = {
+  const [formData, setFormData] = useState({
     title: "",
     description: "",
     people: [],
-  };
-
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isValid },
-  } = useForm({
-    defaultValues: { ...formData },
-    mode: "all",
   });
 
-  const onSubmitHandler = (lastData) => {
-    console.log(lastData);
-  };
+  // yup error stateleri
+  const [formErrors, setFormErrors] = useState({
+    title: "",
+    description: "",
+    people: "",
+  });
+
+  const [buttonDisabled, setButtonDisabled] = useState(true);
+
+  // form datası her güncellendiğinde valid mi diye kontrol et
+  useEffect(() => {
+    formSemasi.isValid(formData).then((valid) => setButtonDisabled(!valid));
+  }, [formData]);
+
+  // yup form alani her değiştiğinde çalışan kontrol fonksiyonu
+  function formAlaniniKontrolEt(name, value) {
+    Yup.reach(formSemasi, name)
+      .validate(value)
+      .then(() => {
+        setFormErrors({
+          ...formErrors,
+          [name]: "",
+        });
+      })
+      .catch((err) => {
+        setFormErrors({
+          ...formErrors,
+          [name]: err.errors[0],
+        });
+      });
+  }
+
+  // checkboxların değişimini state içerisine eklemek için özel fonksiyon
+  function handleCheckboxChange(e) {
+    const { value } = e.target;
+
+    let yeniPeople = [...formData.people];
+    const index = formData.people.indexOf(value);
+    if (index > -1) {
+      yeniPeople.splice(index, 1);
+    } else {
+      yeniPeople.push(value);
+    }
+
+    formAlaniniKontrolEt("people", yeniPeople);
+    setFormData({
+      ...formData,
+      people: yeniPeople,
+    });
+  }
+
+  // diğer form alanları değiştikçe çalışan ve yeni değeri state'e ekleyen fonksiyon
+  function handleOthersChange(e) {
+    const { name, value } = e.target;
+    formAlaniniKontrolEt(name, value);
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+  }
+
+  // task ekleme
+  function handleSubmit(e) {
+    e.preventDefault();
+    submitFn({
+      ...formData,
+      id: nanoid(5),
+      status: "yapılacak",
+    });
+    setFormData({
+      title: "",
+      description: "",
+      people: [],
+    });
+  }
 
   return (
-    <form className="taskForm" onSubmit={handleSubmit(onSubmitHandler)}>
+    <form className="taskForm" onSubmit={handleSubmit}>
       <div className="form-line">
         <label className="input-label" htmlFor="title">
           Başlık
@@ -32,15 +108,10 @@ const TaskForm = ({ kisiler, submitFn }) => {
           id="title"
           name="title"
           type="text"
-          {...register("title", {
-            required: "Task başlığı yazmalısınız.",
-            minLength: {
-              value: 3,
-              message: "Task başlığı en az 3 karakter olmalı",
-            },
-          })}
+          onChange={handleOthersChange}
+          value={formData.title}
         />
-        <p className="input-error">{errors?.title?.message}</p>
+        <p className="input-error">{formErrors.title}</p>
       </div>
 
       <div className="form-line">
@@ -52,15 +123,10 @@ const TaskForm = ({ kisiler, submitFn }) => {
           rows="3"
           id="description"
           name="description"
-          {...register("description", {
-            required: "Task açıklaması yazmalısınız",
-            minLength: {
-              value: 10,
-              message: "Task açıklaması en az 10 karakter olmalı",
-            },
-          })}
+          onChange={handleOthersChange}
+          value={formData.description}
         ></textarea>
-        <p className="input-error">{errors?.description?.message}</p>
+        <p className="input-error">{formErrors.description}</p>
       </div>
 
       <div className="form-line">
@@ -72,22 +138,22 @@ const TaskForm = ({ kisiler, submitFn }) => {
                 type="checkbox"
                 name="people"
                 value={p}
-                {...register("people", {
-                  required: "Lütfen seçim yapınız",
-                  validate: (val) => {
-                    return val?.length <= 3 || "En fazla 3 kişi seçebilirsiniz";
-                  },
-                })}
+                onChange={handleCheckboxChange}
+                checked={formData.people.includes(p)}
               />
               {p}
             </label>
           ))}
         </div>
-        <p className="input-error">{errors?.people?.message}</p>
+        <p className="input-error">{formErrors.people}</p>
       </div>
 
       <div className="form-line">
-        <button className="submit-button" type="submit" disabled={!isValid}>
+        <button
+          className="submit-button"
+          type="submit"
+          disabled={buttonDisabled}
+        >
           Kaydet
         </button>
       </div>
