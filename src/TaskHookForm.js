@@ -2,6 +2,9 @@ import { nanoid } from "nanoid";
 import React from "react";
 import { useForm } from "react-hook-form";
 
+import { Flip, ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 export default function TaskHookForm({ submitFn, kisiler }) {
   const formData = {
     title: "",
@@ -21,6 +24,7 @@ export default function TaskHookForm({ submitFn, kisiler }) {
   const onSubmitHandler = (lastData) => {
     console.log("Veriler", lastData);
     submitFn({ ...lastData, id: nanoid(5), status: "yapılacak" });
+    toast.info("Yeni liste eklendi ");
   };
 
   return (

@@ -6,7 +6,7 @@ import TaskHookForm from "./TaskHookForm";
 import PeopleForm from "./PeopleForm";
 import { initialTasks, initialTeam } from "./data";
 import { useForm } from "react-hook-form";
-import { ToastContainer, toast } from "react-toastify";
+import { Flip, ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 function App() {
@@ -30,9 +30,15 @@ function App() {
         return item;
       }
     });
-
     setTasks(updatedTask);
+
+    toast.success("Bir liste basariyla tamamlandi !!");
   }
+
+  useEffect(() => {
+    toast.success("Uygulama basariyla yuklendi !");
+    // handleTaskSubmit();
+  }, []);
 
   return (
     <div className="app">
@@ -70,6 +76,12 @@ function App() {
           </div>
         </div>
       </div>
+      <ToastContainer
+        position="top-right"
+        theme="dark"
+        autoClose={3000}
+        transition={Flip}
+      />
     </div>
   );
 }
