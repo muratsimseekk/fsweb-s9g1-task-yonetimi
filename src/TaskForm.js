@@ -1,15 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { nanoid } from "nanoid";
-import * as Yup from "yup";
-
 import { useForm } from "react-hook-form";
 
 const TaskForm = ({ kisiler, submitFn }) => {
-  const [formData, setFormData] = useState({
+  const formData = {
     title: "",
     description: "",
     people: [],
-  });
+  };
 
   const {
     register,
@@ -76,9 +73,10 @@ const TaskForm = ({ kisiler, submitFn }) => {
                 name="people"
                 value={p}
                 {...register("people", {
-                  required: "En fazla 3 kişi seçebilirsiniz",
-                  maxLength: 3,
-                  // min: 1,
+                  required: "Lütfen seçim yapınız",
+                  validate: (val) => {
+                    return val?.length <= 3 || "En fazla 3 kişi seçebilirsiniz";
+                  },
                 })}
               />
               {p}
